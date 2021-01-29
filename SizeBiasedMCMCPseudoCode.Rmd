@@ -1,0 +1,68 @@
+---
+title: "SizeBiasedSamplingPseudocode"
+author: "Paul M"
+date: "1/29/2021"
+output: pdf_document
+---
+
+# Size-biased sampling via MCMC sampling
+
+Let's define a distribution to try it on
+```{r}
+Exponential <- function(dRate,x){
+	return (dRate*exp(-dRate*x))
+}
+```
+
+We could just as easily use R's pre-defined exponential density function
+
+Here's the pseudcode for Size-biased MCMC. We pass it the following arguments:
+Density: the name of the function that defines our density
+Param1: the parameter of the density function (we assume it has just one parameter)
+NoOfIts: how many iterations to run
+StepSize: at each iteration we will propose a move drawn from an unif[iStepSize,StepSize] rv 
+LowRange: The low end of the interval over which we will sample
+HighRange: The high end of the interval over which we will sample
+
+```{r SBMCMC}
+SizedBiasedMCMC <- function(Density, Param1,NoOfIts,StepSize,LowRange,HighRange){
+	 #start somewhere
+	 x <- runif(1,LowRange,HighRange)
+	 Accepteds <- vector(mode="double",length=NoOfIts)
+	 
+	 # do Metropolis Algorithm
+	 for (i in 1:NoOfIts){
+	 	
+	 	# propose new x - for example
+	 	xprime <- x+runif(1,-StepSize,StepSize)
+	 	
+	 	# Check we haven't gone outside our range of interest
+		if (xprime> HighRange)
+			xprime <- HighRange-(xprime-HighRange) # this treats the edge of the range as a 'reflecting boundary'.
+		if (xprime< LowRange)
+			xprime <- LowRange-(xprime-LowRange) # this treats the edge of the range as a 'reflecting boundary'.
+
+		# Calculate acceptance prob PAccept  <-  min{1,q(x'->x)f(x')/q(x->x')f(x)} ...... here f(y)=y*Density(param1,y) 
+		# ADD CODE TO DO THAT HERE
+		
+    # Decide whether to move or not? 
+		p <- runif(1)
+		if (p<Paccept)
+		{
+			x <- xprime
+		}
+		# update the vector of states
+		Accepteds[i] <- x
+	 }
+	hist(Accepteds,breaks=50)
+	return (Accepteds)
+}
+```
+
+Test the code using something like the following:
+```{r}
+SB <- SizedBiasedMCMC(Exponential,1,1500000,0.9,0,10)
+HSB <- hist(SB,breaks=500)
+plot(HSB$mids,HSB$density,pch='.',cex=3)
+curve(x*exp(-x),add=TRUE,col="blue")
+```
