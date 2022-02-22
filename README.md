@@ -1,6 +1,6 @@
-# Week6-SizeBiasedMCMC
+# Week7-SizeBiasedMCMC
 
-This is the repo for exercise 2 of week 6. the instructions were as follows:
+This is the repo for exercise 2 of week 7. the instructions were as follows:
 
 Code up the Metropolis-Hastings MCMC algorithm for sized-biased sampling from an arbitrary distribution over the range [0,10].
 
